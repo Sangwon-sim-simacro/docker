@@ -1,0 +1,47 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: []
+    scheme: http
+    timeout: 10s
+    api_version: v1
+scrape_configs:
+  - job_name: prometheus
+    honor_timestamps: true
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+    - targets:
+      - localhost:9091
+  - job_name: mysql
+    static_configs:
+    - targets:
+      - host.docker.internal:3306
+    relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      # The mysqld_exporter host:port
+      replacement: host.docker.interna:9104
+  - job_name: 'mariadb test'
+    scrape_interval: 5s
+    static_configs:
+      - targets: 
+        - host.docker.internal:9104
+  - job_name: "analysis_data_connector"
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["host.docker.internal:40036"]
+  - job_name: "scheduled_analysis"
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["host.docker.internal:40037"]
+
